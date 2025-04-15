@@ -9,17 +9,17 @@ routes.get('/', (req, res) => {
   return res.json({ titulo: 'Estacionamento ACME' });
 });
 
-routes.post('/a', Aluno.create);
-routes.get('/a', Aluno.read);
-routes.get('/a/:id', Aluno.readOne);
-routes.patch('/a/:id', Aluno.update);
-routes.delete('/a/:id', Aluno.remove);
+routes.post('/automovel', Automovel.create);
+routes.get('/automovel', Automovel.read);
+routes.get('/automovel/:id',  Automovel.readOne);
+routes.patch('/automovel/:id',  Automovel.update);
+routes.delete('/automovel/:id',  Automovel.remove);
 
-routes.post('/t', Telefone.create);
-routes.get('/t', Telefone.read);
-routes.get('/t/:id', Telefone.readOne);
-routes.patch('/t/:id', Telefone.update);
-routes.delete('/t/:id', Telefone.remove);
+routes.post('/estadia', Estadia.create);
+routes.get('/estadia', Estadia.read);
+routes.get('/estadia/:id', Estadia.readOne);
+routes.patch('/estadia/:id', Estadia.update);
+routes.delete('/estadia/:id', Estadia.remove);
 
 
 module.exports = routes;

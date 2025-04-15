@@ -1,72 +1,115 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+// Criar estadia
 const create = async (req, res) => {
-    try {
-        const automovel = await prisma.automovel.create({
-            data: req.body
-        });
-        res.status(201).json(automovel);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-}
+  try {
+    const { automovelId, valorHora } = req.body;
 
-const read = async (req, res) => {
-    const automovels = await prisma.automovel.findMany({
-        include: {
-            telefone: true,
-            atividade: true
-        }
-    });
-    res.json(automovels);
-}
-
-const readOne = async (req, res) => {
+    // Buscar placa do automóvel
     const automovel = await prisma.automovel.findUnique({
-        where: {
-            ra: req.params.id
-        },
-        include: {
-            telefone: true,
-            atividade: true
-        }
+      where: { id: automovelId },
     });
-    if (automovel) res.json(automovel);
-    else res.status(404).json({ error: 'automovel não encontrado' });
-}
 
+    if (!automovel) {
+      return res.status(404).json({ error: 'Automóvel não encontrado' });
+    }
+
+    const now = new Date();
+
+    const estadia = await prisma.estadia.create({
+      data: {
+        automovelId,
+        placa: automovel.placa,
+        entrada: now,
+        valorHora,
+      },
+    });
+
+    res.status(201).json(estadia);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+// Listar todas as estadias
+const read = async (req, res) => {
+  const estadias = await prisma.estadia.findMany({
+    include: {
+      automovel: true,
+    },
+  });
+  res.json(estadias);
+};
+
+// Buscar uma estadia por ID
+const readOne = async (req, res) => {
+  const id = parseInt(req.params.id);
+  const estadia = await prisma.estadia.findUnique({
+    where: { id },
+    include: {
+      automovel: true,
+    },
+  });
+
+  if (estadia) res.json(estadia);
+  else res.status(404).json({ error: 'Estadia não encontrada' });
+};
+
+// Atualizar estadia (ex: preencher saída e calcular valorTotal)
 const update = async (req, res) => {
-    try {
-        const automovel = await prisma.automovel.update({
-            where: {
-                ra: req.params.id
-            },
-            data: req.body
-        });
-        res.status(200).json(automovel);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-}
+  try {
+    const id = parseInt(req.params.id);
+    const { saida } = req.body;
 
-const remove = async (req, res) => {
-    try {
-        await prisma.automovel.delete({
-            where: {
-                ra: req.params.id
-            }
-        });
-        res.status(204).end();
-    } catch (e) {
-        res.status(400).json({ error: e.message });
+    let updateData = { ...req.body };
+
+    if (saida) {
+      const estadiaExistente = await prisma.estadia.findUnique({ where: { id } });
+
+      if (!estadiaExistente) {
+        return res.status(404).json({ error: 'Estadia não encontrada' });
+      }
+
+      const entrada = new Date(estadiaExistente.entrada);
+      const saidaDate = new Date(saida);
+
+      const duracaoEmHoras = (saidaDate - entrada) / (1000 * 60 * 60);
+      const valorTotal = parseFloat(duracaoEmHoras * parseFloat(estadiaExistente.valorHora)).toFixed(2);
+
+      updateData = {
+        ...updateData,
+        saida: saidaDate,
+        valorTotal: parseFloat(valorTotal),
+      };
     }
-}
+
+    const estadia = await prisma.estadia.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.status(200).json(estadia);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+// Remover uma estadia
+const remove = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await prisma.estadia.delete({ where: { id } });
+    res.status(204).end();
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+};
 
 module.exports = {
-    create,
-    read,
-    readOne,
-    update,
-    remove
-}
+  create,
+  read,
+  readOne,
+  update,
+  remove,
+};
