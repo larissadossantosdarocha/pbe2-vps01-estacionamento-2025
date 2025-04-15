@@ -18,7 +18,7 @@ const read = async (req, res) => {
   try {
     const automoveis = await prisma.automovel.findMany({
       include: {
-        estadias: true, // Mostra as estadias associadas, se quiser
+        estadias: true, // Relaciona as estadias do automóvel
       },
     });
     res.json(automoveis);
@@ -35,7 +35,7 @@ const readOne = async (req, res) => {
     const automovel = await prisma.automovel.findUnique({
       where: { id },
       include: {
-        estadias: true, // Mostra as estadias do veículo
+        estadias: true, // Mostra as estadias associadas
       },
     });
 
