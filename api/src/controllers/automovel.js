@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar um novo automóvel
 const create = async (req, res) => {
   try {
     const automovel = await prisma.automovel.create({
@@ -13,12 +12,11 @@ const create = async (req, res) => {
   }
 };
 
-// Listar todos os automóveis
 const read = async (req, res) => {
   try {
     const automoveis = await prisma.automovel.findMany({
       include: {
-        estadias: true, // Relaciona as estadias do automóvel
+        estadias: true,
       },
     });
     res.json(automoveis);
@@ -27,7 +25,7 @@ const read = async (req, res) => {
   }
 };
 
-// Buscar automóvel por ID
+
 const readOne = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -35,7 +33,7 @@ const readOne = async (req, res) => {
     const automovel = await prisma.automovel.findUnique({
       where: { id },
       include: {
-        estadias: true, // Mostra as estadias associadas
+        estadias: true, 
       },
     });
 
@@ -46,7 +44,7 @@ const readOne = async (req, res) => {
   }
 };
 
-// Atualizar automóvel por ID
+
 const update = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -62,7 +60,7 @@ const update = async (req, res) => {
   }
 };
 
-// Deletar automóvel
+
 const remove = async (req, res) => {
   try {
     const id = parseInt(req.params.id);

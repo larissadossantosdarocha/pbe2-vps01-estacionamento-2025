@@ -1,12 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar estadia
 const create = async (req, res) => {
   try {
     const { automovelId, valorHora } = req.body;
 
-    // Buscar placa do automóvel
     const automovel = await prisma.automovel.findUnique({
       where: { id: automovelId },
     });
@@ -32,7 +30,6 @@ const create = async (req, res) => {
   }
 };
 
-// Listar todas as estadias
 const read = async (req, res) => {
   const estadias = await prisma.estadia.findMany({
     include: {
@@ -42,7 +39,6 @@ const read = async (req, res) => {
   res.json(estadias);
 };
 
-// Buscar uma estadia por ID
 const readOne = async (req, res) => {
   const id = parseInt(req.params.id);
   const estadia = await prisma.estadia.findUnique({
@@ -56,7 +52,6 @@ const readOne = async (req, res) => {
   else res.status(404).json({ error: 'Estadia não encontrada' });
 };
 
-// Atualizar estadia (ex: preencher saída e calcular valorTotal)
 const update = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
